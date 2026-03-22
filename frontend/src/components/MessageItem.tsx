@@ -1,21 +1,17 @@
 import React from 'react';
-import { Socket } from 'socket.io-client';
 
 interface Message {
   id: number;
   content: string;
   username: string;
-  senderName: string;
+  senderName?: string | null;
   createdAt: string;
-  user_id: number;
+  userId: number;
 }
 
 interface Props {
   message: Message;
   isOwn: boolean;
-  token: string;    // prop drilling artifact - never used in this component
-  socket: Socket;   // prop drilling artifact - never used in this component
-  apiUrl: string;   // prop drilling artifact - never used in this component
 }
 
 export default function MessageItem({ message, isOwn }: Props) {
@@ -44,9 +40,9 @@ export default function MessageItem({ message, isOwn }: Props) {
           backgroundColor: isOwn ? '#0084ff' : '#e4e6ea',
           color: isOwn ? 'white' : 'black',
         }}
-        // FLAW: XSS vulnerability - no sanitization
-        dangerouslySetInnerHTML={{ __html: message.content }}
-      />
+      >
+        {message.content}
+      </div>
     </div>
   );
 }

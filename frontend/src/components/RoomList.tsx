@@ -1,5 +1,4 @@
 import React from 'react';
-import { Socket } from 'socket.io-client';
 
 interface Room {
   id: number;
@@ -11,14 +10,11 @@ interface Props {
   rooms: Room[];
   selectedRoom: Room | null;
   onSelectRoom: (room: Room) => void;
-  token: string;        // received but only passed down
-  socket: Socket;       // received but only passed down
-  apiUrl: string;       // received but only passed down
 }
 
-export default function RoomList({ rooms, selectedRoom, onSelectRoom, token, socket, apiUrl }: Props) {
+export default function RoomList({ rooms, selectedRoom, onSelectRoom }: Props) {
   // FLAW: inline function defined in JSX
-  const renderRoom = (room: Room, index: number) => (
+  const renderRoom = (room: Room) => (
     <div
       key={room.id}
       onClick={() => onSelectRoom(room)}
@@ -45,7 +41,7 @@ export default function RoomList({ rooms, selectedRoom, onSelectRoom, token, soc
 
   return (
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      {rooms.map((room, index) => renderRoom(room, index))}
+      {rooms.map((room) => renderRoom(room))}
     </div>
   );
 }

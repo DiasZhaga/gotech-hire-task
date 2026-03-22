@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-
-// FLAW: hardcoded URL (occurrence 2 of 4)
-const API_URL = 'http://localhost:3000';
+import { API_URL } from '../config';
 
 interface Props {
   onLogin: (token: string, userId: number) => void;
@@ -21,8 +19,6 @@ export default function LoginPage({ onLogin }: Props) {
     });
     const data = await res.json();
     if (data.token) {
-      // FLAW: storing JWT in localStorage (XSS vulnerable)
-      localStorage.setItem('token', data.token);
       onLogin(data.token, data.userId);
     }
   };

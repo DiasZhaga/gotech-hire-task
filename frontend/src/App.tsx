@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import ChatPage from './components/ChatPage';
-
-// FLAW: hardcoded URL (occurrence 1 of 4)
-const API_URL = 'http://localhost:3000';
+import { API_URL } from './config';
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
@@ -14,8 +12,16 @@ export default function App() {
     localStorage.getItem('userId') ? parseInt(localStorage.getItem('userId')!) : null
   );
 
-  // FLAW: socket created on every render, not in useRef
-  const socket = io('http://localhost:3000');
+  const socket = useMemo(() => {
+    if (!token) return null;
+    return io(API_URL, { auth: { token } });
+  }, [token]);
+
+  useEffect(() => {
+    return () => {
+      socket?.disconnect();
+    };
+  }, [socket]);
 
   const handleLogin = (newToken: string, newUserId: number) => {
     localStorage.setItem('token', newToken);
@@ -39,7 +45,7 @@ export default function App() {
         <Route path="/register" element={token ? <Navigate to="/chat" /> : <RegisterPage onLogin={handleLogin} />} />
         <Route
           path="/chat"
-          element={token ? <ChatPage token={token} userId={userId!} socket={socket} apiUrl={API_URL} onLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={token && socket ? <ChatPage token={token} userId={userId!} socket={socket} apiUrl={API_URL} onLogout={handleLogout} /> : <Navigate to="/login" />}
         />
         <Route path="*" element={<Navigate to={token ? '/chat' : '/login'} />} />
       </Routes>
